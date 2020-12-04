@@ -10,6 +10,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.Versioning;
+using NSwag.AspNetCore;
 using NSwag.Generation.AspNetCore;
 
 namespace WebApi
@@ -27,11 +29,23 @@ namespace WebApi
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddControllers();
+            services.AddControllers(options =>
+                options.Filters.Add(new JsonExceptionFilterAttribute()));
 
             services.AddRouting(option =>
                 option.LowercaseUrls = true);
-            services.AddSwaggerDocument(o => o.Title = "My Awesome core API");  
+            services.AddSwaggerDocument(o => o.Title = "My Awesome core API");
+
+
+            //API Versions
+            services.AddApiVersioning(apiVerConfig =>
+            {
+                apiVerConfig.AssumeDefaultVersionWhenUnspecified = true;
+                apiVerConfig.DefaultApiVersion = new ApiVersion(1, 0);
+                apiVerConfig.ReportApiVersions = true;
+                apiVerConfig.ApiVersionReader = new HeaderApiVersionReader("api-version");
+            });
+
 
         }
 
@@ -42,14 +56,20 @@ namespace WebApi
             {
                 app.UseDeveloperExceptionPage();
 
+                app.UseExceptionHandler("/error-local-development");
+
+            }
+            else
+            {
+                app.UseExceptionHandler("/error");
             }
 
             app.UseStaticFiles();
             app.UseHttpsRedirection();
 
             app.UseRouting();
-            app.UseOpenApi();  
-            app.UseSwaggerUi3();  
+            app.UseOpenApi();
+            app.UseSwaggerUi3();
             app.UseAuthorization();
             app.UseAuthentication();
 

@@ -9,6 +9,9 @@ namespace WebApi.Controllers
 {
     [Route("/")]
     [ApiController]
+    [ApiVersion("1.0")]
+
+    //[Route("api/v{version:apiVersion}/[controller]")]
     public class RootController : ControllerBase
     {
         [HttpGet(Name = nameof(GetRoot))]
